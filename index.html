@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>CSV</title>
+</head>
+<body>
+
+<input type="file" id="csvFileInput" onchange="handleFiles(this.files)" accept=".csv" >
+
+<script>
+function handleFiles(files) {
+    if(window.FileReader) {
+        getAsText(files[0])
+        fileUploaded = true
+    } else {
+        alert('FileReader are not supported in this browser, please use another browser.')
+    }
+}
+function getAsText(file) {
+    var reader = new FileReader()
+    reader.readAsText(file)
+    reader.onload = loadHandler
+    reader.onerror = errorHandler
+}
+function loadHandler(e) {
+    var csv = e.target.result
+    var data = processData(csv)
+    processArray(data)
+}
+function processData(strData, strDelimiter) {
+    // Check to see if the delimiter is defined. If not,
+    // then default to comma.
+    strDelimiter = (strDelimiter || ",");
+
+    // Create a regular expression to parse the CSV values.
+    var objPattern = new RegExp(
+       (
+           // Delimiters.
+           "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
+
+           // Quoted fields.
+           "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
+
+           // Standard fields.
+           "([^\"\\" + strDelimiter + "\\r\\n]*))"
+       ),
+       "gi"
+       );
+
+    // Create an array to hold our data. Give the array
+    // a default empty first row.
+    var arrData = [[]];
+
+    // Create an array to hold our individual pattern
+    // matching groups.
+    var arrMatches = null;
+
+
+    // Keep looping over the regular expression matches
+       // until we can no longer find a match.
+       while (arrMatches = objPattern.exec( strData )){
+
+           // Get the delimiter that was found.
+           var strMatchedDelimiter = arrMatches[ 1 ];
+
+           // Check to see if the given delimiter has a length
+           // (is not the start of string) and if it matches
+           // field delimiter. If id does not, then we know
+           // that this delimiter is a row delimiter.
+           if (
+               strMatchedDelimiter.length &&
+               strMatchedDelimiter !== strDelimiter
+               ){
+
+               // Since we have reached a new row of data,
+               // add an empty row to our data array.
+               arrData.push( [] );
+
+           }
+
+           var strMatchedValue;
+
+           // Now that we have our delimiter out of the way,
+           // let's check to see which kind of value we
+           // captured (quoted or unquoted).
+           if (arrMatches[ 2 ]){
+
+               // We found a quoted value. When we capture
+               // this value, unescape any double quotes.
+               strMatchedValue = arrMatches[ 2 ].replace(
+                   new RegExp( "\"\"", "g" ),
+                   "\""
+                   );
+
+           } else {
+
+               // We found a non-quoted value.
+               strMatchedValue = arrMatches[ 3 ];
+
+           }
+
+
+           // Now that we have our value string, let's add
+           // it to the data array.
+           arrData[ arrData.length - 1 ].push( strMatchedValue );
+       }
+       return( arrData );
+}
+function processArray(data) {
+    var weapons = []
+    var index = 0
+    for(index; index < data.length; index++) {
+        var weapon = {}
+        data[index].forEach((field, index) => {
+            // console.log("index: ", index)
+            // console.log('field: ', field)
+
+            if(index === 0) weapon.model = field
+            if(index === 3) weapon.desc = field
+            if(index === 5) weapon.size = field
+            if(index === 7) weapon.mass = field
+            if(index === 8) weapon.hp = field
+
+            if(index === 9) weapon.sim_dps_3s = field
+            if(index === 10) weapon.sim_dps_10s = field
+            if(index === 11) weapon.sim_dps_30s = field
+            if(index === 12) weapon.sim_dps_60s = field
+            if(index === 13) weapon.sim_dps_90s = field
+            if(index === 14) weapon.dps = field
+            if(index === 15) weapon.shot_per_minute = field
+            if(index === 16) weapon.default_rounds = field
+
+            if(index === 17) weapon.ammo_name = field
+            if(index === 18) weapon.ammo_size = field
+            if(index === 19) weapon.ammo_lifetime = field
+            if(index === 20) weapon.ammo_speed = field
+            if(index === 21) weapon.ammo_range = field
+            if(index === 22) weapon.ammo_damage_total_phys = field
+            if(index === 23) weapon.ammo_damage_total_erg = field
+            if(index === 24) weapon.ammo_damage_total_dist = field
+            if(index === 25) weapon.ammo_damage_total_heat = field
+            if(index === 26) weapon.ammo_damage_total_bio = field
+            if(index === 27) weapon.ammo_damage_total = field
+            if(index === 28) weapon.ammo_max_pen = field
+            if(index === 32) weapon.ammo_per_shot = field
+
+            if(index === 33) weapon.burst_rate = field
+            if(index === 34) weapon.burst_shots = field
+            if(index === 35) weapon.burst_dps = field
+
+            if(index === 36) weapon.spread_first = field
+            if(index === 37) weapon.spread_per_shot = field
+            if(index === 38) weapon.spread_max = field
+            if(index === 39) weapon.spread_min = field
+            if(index === 40) weapon.spread_instability = field
+            if(index === 41 || index === 42) weapon.spread_decay = field
+            if(index === 43) weapon.spread_decay_end = field
+        })
+        weapons.push(weapon)
+    }
+    console.log(weapons)
+}
+function errorHandler(e) {
+    if(e.target.error.name == "NotReadableError") {
+        alert("Cannot read file")
+    }
+}
+</script>
+</body>
+</html>
